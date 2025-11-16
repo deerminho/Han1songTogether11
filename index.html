@@ -1,756 +1,243 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>유튜브 조회수 트래커</title>
+    <title>2025KGMA레드카펫</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 50%, #d6d6d6 100%);
-            min-height: 100vh;
-            padding: 30px 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
-
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        .thumbnail-hover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
-
-        h1 {
-            text-align: center;
-            color: #00695c;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-            background: linear-gradient(135deg, #00897b, #4db6ac);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        #thumbnail-img {
+            max-width: 100%;
+            width: 240px;
+            height: auto;
         }
-
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .video-selector {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .video-selector select {
-            padding: 12px 20px;
-            border: 2px solid #b2dfdb;
-            border-radius: 10px;
-            font-size: 16px;
-            background: white;
-            color: #00695c;
-            cursor: pointer;
-            min-width: 200px;
-        }
-
-        .video-selector select:focus {
-            outline: none;
-            border-color: #26a69a;
-        }
-
-        .video-manage {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #26a69a, #4db6ac);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(38, 166, 154, 0.3);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #90a4ae, #b0bec5);
-        }
-
-        .month-nav {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .month-nav button {
-            background: linear-gradient(135deg, #26a69a, #4db6ac);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-
-        .month-nav button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(38, 166, 154, 0.3);
-        }
-
-        .current-month {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #00695c;
-            min-width: 150px;
-            text-align: center;
-        }
-
-        .video-info {
-            background: linear-gradient(135deg, #e0f2f1, #f5f5f5);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            border: 2px solid #b2dfdb;
-        }
-
-        .video-title {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #00695c;
-            margin-bottom: 10px;
-        }
-
-        .video-stats {
-            display: flex;
-            gap: 30px;
-            color: #00695c;
-            flex-wrap: wrap;
-        }
-
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .day-header {
-            text-align: center;
-            font-weight: bold;
-            color: #00695c;
-            padding: 15px;
-            background: linear-gradient(135deg, #b2dfdb, #e0f2f1);
-            border-radius: 10px;
-            font-size: 1.1em;
-        }
-
-        .day-cell {
-            background: linear-gradient(135deg, #e0f2f1, #f5f5f5);
-            border-radius: 15px;
-            padding: 15px;
-            min-height: 180px;
-            border: 2px solid #b2dfdb;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .day-cell:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 105, 92, 0.2);
-            border-color: #26a69a;
-        }
-
-        .day-cell.empty {
-            background: transparent;
-            border: none;
-        }
-
-        .day-cell.empty:hover {
-            transform: none;
-            box-shadow: none;
-        }
-
-        .day-number {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #00695c;
-            margin-bottom: 10px;
-        }
-
-        .view-input {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .view-row {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .view-label {
-            font-size: 0.85em;
-            color: #00695c;
-            font-weight: 600;
-            min-width: 40px;
-        }
-
-        .view-row input {
-            flex: 1;
-            padding: 8px;
-            border: 2px solid #b2dfdb;
-            border-radius: 8px;
-            font-size: 0.9em;
-            background: white;
-            transition: all 0.3s;
-        }
-
-        .view-row input:focus {
-            outline: none;
-            border-color: #26a69a;
-            box-shadow: 0 0 0 3px rgba(38, 166, 154, 0.1);
-        }
-
-        .daily-increase {
-            margin-top: 12px;
-            padding: 10px;
-            background: linear-gradient(135deg, #26a69a, #4db6ac);
-            border-radius: 8px;
-            color: white;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .increase-positive {
-            background: linear-gradient(135deg, #26a69a, #4db6ac) !important;
-        }
-
-        .increase-zero {
-            background: linear-gradient(135deg, #90a4ae, #b0bec5) !important;
-        }
-
-        .summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 3px solid #b2dfdb;
-        }
-
-        .summary-card {
-            background: linear-gradient(135deg, #e0f2f1, #b2dfdb);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            border: 2px solid #80cbc4;
-        }
-
-        .summary-label {
-            color: #00695c;
-            font-size: 0.9em;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .summary-value {
-            color: #004d40;
-            font-size: 1.8em;
-            font-weight: bold;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-title {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #00695c;
-            margin-bottom: 20px;
-        }
-
-        .modal-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #b2dfdb;
-            border-radius: 10px;
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-
-        .modal-input:focus {
-            outline: none;
-            border-color: #26a69a;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .video-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-        }
-
-        .video-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border: 2px solid #b2dfdb;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .video-item-title {
-            color: #00695c;
-            font-weight: 600;
-        }
-
-        .delete-btn {
-            background: #e57373;
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .delete-btn:hover {
-            background: #ef5350;
+        @media (min-width: 768px) {
+            #thumbnail-img {
+                width: 280px;
+            }
         }
     </style>
+</h1>
 </head>
-<body>
-    <div class="container">
-        <h1>📊 유튜브 조회수 트래커</h1>
-        
-        <div class="controls">
-            <div class="video-selector">
-                <span style="color: #00695c; font-weight: bold;">영상 선택:</span>
-                <select id="videoSelect" onchange="changeVideo()">
-                    <option value="">영상을 선택하세요</option>
-                </select>
-                <div class="video-manage">
-                    <button class="btn" onclick="openAddModal()">+ 영상 추가</button>
-                    <button class="btn btn-secondary" onclick="openManageModal()">영상 관리</button>
+<body class="min-h-screen bg-gradient-to-br from-pink-50 via-white to-pink-100 p-2 md:p-4">
+    <div class="max-w-4xl mx-auto">
+
+        <!-- 헤더 -->
+        <div class="text-center mb-4 md:mb-6">
+            <h1 class="text-xl md:text-3xl lg:text-4xl font-bold text-gray-800">
+              
+            </h1>
+ </div>
+
+        <!-- 비디오 플레이어 섹션 -->
+        <div class="bg-white rounded-2xl p-3 md:p-6 mb-4 md:mb-6 shadow-lg border-2 border-teal-300">
+            <!-- YouTube 플레이어 -->
+            <div class="relative aspect-video bg-black rounded-lg overflow-hidden border-2 border-teal-300 mb-3 md:mb-4">
+                <div id="youtube-player" class="w-full h-full"></div>
+            </div>
+
+            <!-- 타이머 표시 -->
+            <div class="text-center mb-4">
+                <div class="inline-block bg-teal-400 px-4 py-2 md:px-6 md:py-3 rounded-full">
+                    <span class="text-white text-sm md:text-lg font-semibold">
+                        다음 곡까지 <span id="timer" class="text-xl md:text-2xl font-bold">0</span>초
+                    </span>
                 </div>
             </div>
-            <div class="month-nav">
-                <button onclick="previousMonth()">◀ 이전</button>
-                <div class="current-month" id="currentMonth"></div>
-                <button onclick="nextMonth()">다음 ▶</button>
+
+            <!-- 썸네일 + 노래 제목 -->
+            <div class="text-center">
+                <a id="thumbnail-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-block">
+                    <img id="thumbnail-img" src="" alt="영상 썸네일" 
+                         class="rounded-lg border-2 md:border-3 border-teal-400 shadow-xl thumbnail-hover transition-all duration-300 cursor-pointer mb-3">
+                </a>
+                <p id="song-title" class="text-base md:text-lg font-bold text-gray-800">2025KGMA 레드카펫</p>
             </div>
         </div>
 
-        <div id="videoInfo" class="video-info" style="display: none;">
-            <div class="video-title" id="videoTitle"></div>
-            <div class="video-stats">
-                <span>📅 최초 기록: <strong id="firstRecord">-</strong></span>
-                <span>📈 월간 총 증가: <strong id="monthlyIncrease">-</strong></span>
+        <!-- 통계 섹션 -->
+        <div class="bg-white rounded-2xl p-3 md:p-6 shadow-lg border-2 border-teal-300">
+            <div class="grid grid-cols-3 gap-2 md:gap-6">
+                <!-- 조회수 -->
+                <div class="rounded-xl p-3 md:p-6 text-center transform hover:scale-105 transition-all border-2 md:border-4 border-teal-400 bg-white">
+                    <div class="text-teal-600 text-xs md:text-sm mb-1 md:mb-2 font-bold">조회수</div>
+                    <div id="views" class="text-gray-800 text-base md:text-3xl font-bold break-words">0</div>
+                    <div class="text-gray-500 text-xs mt-1 md:mt-2">👁️</div>
+                </div>
+
+                <!-- 좋아요 -->
+                <div class="rounded-xl p-3 md:p-6 text-center transform hover:scale-105 transition-all border-2 md:border-4 border-pink-400 bg-white">
+                    <div class="text-pink-500 text-xs md:text-sm mb-1 md:mb-2 font-bold">좋아요</div>
+                    <div id="likes" class="text-gray-800 text-base md:text-3xl font-bold break-words">0</div>
+                    <div class="text-gray-500 text-xs mt-1 md:mt-2">👍</div>
+                </div>
+
+                <!-- 댓글 -->
+                <div class="rounded-xl p-3 md:p-6 text-center transform hover:scale-105 transition-all border-2 md:border-4 border-teal-400 bg-white">
+                    <div class="text-teal-600 text-xs md:text-sm mb-1 md:mb-2 font-bold">댓글</div>
+                    <div id="comments" class="text-gray-800 text-base md:text-3xl font-bold break-words">0</div>
+                    <div class="text-gray-500 text-xs mt-1 md:mt-2">💬</div>
+                </div>
             </div>
         </div>
 
-        <div class="calendar" id="calendar"></div>
-
-        <div class="summary" id="summary"></div>
-    </div>
-
-    <!-- 영상 추가 모달 -->
-    <div id="addModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-title">새 영상 추가</div>
-            <input type="text" id="newVideoTitle" class="modal-input" placeholder="영상 제목을 입력하세요">
-            <div class="modal-buttons">
-                <button class="btn btn-secondary" onclick="closeAddModal()">취소</button>
-                <button class="btn" onclick="addVideo()">추가</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 영상 관리 모달 -->
-    <div id="manageModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-title">영상 관리</div>
-            <div class="video-list" id="videoList"></div>
-            <div class="modal-buttons">
-                <button class="btn" onclick="closeManageModal()">닫기</button>
-            </div>
-        </div>
     </div>
 
     <script>
-        let currentDate = new Date();
-        let currentVideoId = null;
-        let videos = {};
-        let viewData = {};
+        // ⚠️ 설정: YouTube 영상 ID
+        const VIDEO_ID = 'Mwzk6eD2raI';
+        const MIN_TIME = 65;
+        const MAX_TIME = 75;
+        const API_KEY = 'AIzaSyCmVdOLjhAXzpdq2d2eECd_0YqpVQSh-gM';
+        
+        let player;
+        let checkInterval;
+        let targetStopTime = 0;
 
-        function loadData() {
-            const savedVideos = localStorage.getItem('youtubeVideos');
-            const savedViews = localStorage.getItem('youtubeViewData');
+        // 숫자 포맷팅
+        function formatNumber(num) {
+            return num.toLocaleString('ko-KR');
+        }
+
+        // 썸네일 즉시 설정
+        function setThumbnail() {
+            const thumbnailImg = document.getElementById('thumbnail-img');
+            const thumbnailLink = document.getElementById('thumbnail-link');
             
-            if (savedVideos) {
-                videos = JSON.parse(savedVideos);
-            }
-            if (savedViews) {
-                viewData = JSON.parse(savedViews);
-            }
-
-            updateVideoSelect();
-        }
-
-        function saveData() {
-            localStorage.setItem('youtubeVideos', JSON.stringify(videos));
-            localStorage.setItem('youtubeViewData', JSON.stringify(viewData));
-        }
-
-        function updateVideoSelect() {
-            const select = document.getElementById('videoSelect');
-            select.innerHTML = '<option value="">영상을 선택하세요</option>';
+            // YouTube 기본 썸네일
+            thumbnailImg.src = `https://img.youtube.com/vi/${VIDEO_ID}/hqdefault.jpg`;
+            thumbnailLink.href = `https://www.youtube.com/watch?v=${VIDEO_ID}`;
             
-            Object.keys(videos).forEach(id => {
-                const option = document.createElement('option');
-                option.value = id;
-                option.textContent = videos[id];
-                select.appendChild(option);
-            });
-
-            if (currentVideoId && videos[currentVideoId]) {
-                select.value = currentVideoId;
-            }
+            thumbnailImg.onerror = function() {
+                this.onerror = null;
+                this.src = `https://img.youtube.com/vi/${VIDEO_ID}/mqdefault.jpg`;
+            };
         }
 
-        function changeVideo() {
-            const select = document.getElementById('videoSelect');
-            currentVideoId = select.value;
-            
-            if (currentVideoId) {
-                document.getElementById('videoInfo').style.display = 'block';
-                document.getElementById('videoTitle').textContent = videos[currentVideoId];
-                renderCalendar();
-            } else {
-                document.getElementById('videoInfo').style.display = 'none';
-                document.getElementById('calendar').innerHTML = '';
-                document.getElementById('summary').innerHTML = '';
-            }
-        }
+        // YouTube IFrame API 로드
+        var tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        function openAddModal() {
-            document.getElementById('addModal').classList.add('active');
-            document.getElementById('newVideoTitle').value = '';
-        }
-
-        function closeAddModal() {
-            document.getElementById('addModal').classList.remove('active');
-        }
-
-        function addVideo() {
-            const title = document.getElementById('newVideoTitle').value.trim();
-            if (!title) {
-                alert('영상 제목을 입력하세요.');
-                return;
-            }
-
-            const id = 'video_' + Date.now();
-            videos[id] = title;
-            saveData();
-            updateVideoSelect();
-            closeAddModal();
-            
-            document.getElementById('videoSelect').value = id;
-            changeVideo();
-        }
-
-        function openManageModal() {
-            const list = document.getElementById('videoList');
-            list.innerHTML = '';
-
-            Object.keys(videos).forEach(id => {
-                const item = document.createElement('div');
-                item.className = 'video-item';
-                item.innerHTML = `
-                    <span class="video-item-title">${videos[id]}</span>
-                    <button class="delete-btn" onclick="deleteVideo('${id}')">삭제</button>
-                `;
-                list.appendChild(item);
-            });
-
-            document.getElementById('manageModal').classList.add('active');
-        }
-
-        function closeManageModal() {
-            document.getElementById('manageModal').classList.remove('active');
-        }
-
-        function deleteVideo(id) {
-            if (!confirm('이 영상과 관련된 모든 데이터가 삭제됩니다. 계속하시겠습니까?')) {
-                return;
-            }
-
-            delete videos[id];
-            
-            Object.keys(viewData).forEach(key => {
-                if (key.startsWith(id + '_')) {
-                    delete viewData[key];
+        // YouTube API 준비 완료
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                videoId: VIDEO_ID,
+                playerVars: {
+                    autoplay: 0,
+                    controls: 1,
+                    modestbranding: 1,
+                    rel: 0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
                 }
             });
-
-            if (currentVideoId === id) {
-                currentVideoId = null;
-            }
-
-            saveData();
-            updateVideoSelect();
-            closeManageModal();
-            changeVideo();
         }
 
-        function getDateKey(videoId, year, month, day) {
-            return `${videoId}_${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        }
-
-        function renderCalendar() {
-            if (!currentVideoId) return;
-
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
+        // 플레이어 준비 완료
+        function onPlayerReady(event) {
+            loadStats();
             
-            document.getElementById('currentMonth').textContent = 
-                `${year}년 ${month + 1}월`;
-
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            const calendar = document.getElementById('calendar');
-            calendar.innerHTML = '';
-
-            const dayHeaders = ['일', '월', '화', '수', '목', '금', '토'];
-            dayHeaders.forEach(day => {
-                const header = document.createElement('div');
-                header.className = 'day-header';
-                header.textContent = day;
-                calendar.appendChild(header);
-            });
-
-            for (let i = 0; i < firstDay; i++) {
-                const emptyCell = document.createElement('div');
-                emptyCell.className = 'day-cell empty';
-                calendar.appendChild(emptyCell);
-            }
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateKey = getDateKey(currentVideoId, year, month, day);
-                const cell = document.createElement('div');
-                cell.className = 'day-cell';
-                
-                const dayData = viewData[dateKey] || { morning: '', afternoon: '' };
-                
-                cell.innerHTML = `
-                    <div class="day-number">${day}일</div>
-                    <div class="view-input">
-                        <div class="view-row">
-                            <span class="view-label">오전</span>
-                            <input type="number" 
-                                   placeholder="조회수" 
-                                   value="${dayData.morning}"
-                                   onchange="updateView('${dateKey}', 'morning', this.value)">
-                        </div>
-                        <div class="view-row">
-                            <span class="view-label">오후</span>
-                            <input type="number" 
-                                   placeholder="조회수" 
-                                   value="${dayData.afternoon}"
-                                   onchange="updateView('${dateKey}', 'afternoon', this.value)">
-                        </div>
-                    </div>
-                    <div class="daily-increase" id="increase-${dateKey}">
-                        일간 증가: -
-                    </div>
-                `;
-                
-                calendar.appendChild(cell);
-            }
-
-            calculateIncreases();
-            updateSummary();
+            // 60초마다 통계 업데이트
+            setInterval(loadStats, 60000);
+            
+            setTimeout(() => {
+                playFromStart();
+            }, 1000);
         }
 
-        function updateView(dateKey, period, value) {
-            if (!viewData[dateKey]) {
-                viewData[dateKey] = { morning: '', afternoon: '' };
-            }
-            viewData[dateKey][period] = value;
-            saveData();
-            calculateIncreases();
-            updateSummary();
-        }
-
-        function calculateIncreases() {
-            if (!currentVideoId) return;
-
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateKey = getDateKey(currentVideoId, year, month, day);
-                const increaseEl = document.getElementById(`increase-${dateKey}`);
-                
-                if (!increaseEl) continue;
-
-                const todayData = viewData[dateKey];
-                if (!todayData || !todayData.afternoon) {
-                    increaseEl.textContent = '일간 증가: -';
-                    increaseEl.className = 'daily-increase increase-zero';
-                    continue;
-                }
-
-                const prevDay = day - 1;
-                if (prevDay < 1) {
-                    increaseEl.textContent = '일간 증가: -';
-                    increaseEl.className = 'daily-increase increase-zero';
-                    continue;
-                }
-
-                const prevDateKey = getDateKey(currentVideoId, year, month, prevDay);
-                const prevData = viewData[prevDateKey];
-
-                if (!prevData || !prevData.afternoon) {
-                    increaseEl.textContent = '일간 증가: -';
-                    increaseEl.className = 'daily-increase increase-zero';
-                    continue;
-                }
-
-                const increase = parseInt(todayData.afternoon) - parseInt(prevData.afternoon);
-                increaseEl.textContent = `일간 증가: ${increase >= 0 ? '+' : ''}${increase.toLocaleString()}`;
-                increaseEl.className = increase > 0 ? 'daily-increase increase-positive' : 'daily-increase increase-zero';
+        // 플레이어 상태 변경
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                startTimer();
             }
         }
 
-        function updateSummary() {
-            if (!currentVideoId) return;
+        // 0초부터 38~43초 랜덤 재생
+        function playFromStart() {
+            if (!player || !player.seekTo) return;
+            targetStopTime = MIN_TIME + Math.random() * (MAX_TIME - MIN_TIME);
+            console.log('🎵 0초 시작 → ' + targetStopTime.toFixed(1) + '초 정지');
+            player.seekTo(0, true);
+            player.playVideo();
+        }
 
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            let totalIncrease = 0;
-            let daysWithData = 0;
-            let maxIncrease = 0;
-            let firstRecord = '-';
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateKey = getDateKey(currentVideoId, year, month, day);
-                const todayData = viewData[dateKey];
-
-                if (todayData && (todayData.morning || todayData.afternoon)) {
-                    if (firstRecord === '-') {
-                        firstRecord = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        // 타이머 시작
+        function startTimer() {
+            if (checkInterval) {
+                clearInterval(checkInterval);
+            }
+            checkInterval = setInterval(() => {
+                if (player && player.getCurrentTime) {
+                    const currentTime = player.getCurrentTime();
+                    const remaining = targetStopTime - currentTime;
+                    const remainingSeconds = Math.max(0, Math.floor(remaining));
+                    document.getElementById('timer').textContent = remainingSeconds;
+                    
+                    if (currentTime >= targetStopTime - 0.3) {
+                        console.log('✅ ' + targetStopTime.toFixed(1) + '초 도달! 새로 시작');
+                        clearInterval(checkInterval);
+                        playFromStart();
                     }
                 }
+            }, 100);
+        }
 
-                if (day > 1) {
-                    const prevDateKey = getDateKey(currentVideoId, year, month, day - 1);
-                    const prevData = viewData[prevDateKey];
-
-                    if (todayData && todayData.afternoon && prevData && prevData.afternoon) {
-                        const increase = parseInt(todayData.afternoon) - parseInt(prevData.afternoon);
-                        totalIncrease += increase;
-                        daysWithData++;
-                        if (increase > maxIncrease) maxIncrease = increase;
+        // YouTube Data API로 통계 로드
+        async function loadStats() {
+            try {
+                const response = await fetch(
+                    `https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${VIDEO_ID}&key=${API_KEY}`
+                );
+                const data = await response.json();
+                
+                if (data.items && data.items.length > 0) {
+                    const video = data.items[0];
+                    const statistics = video.statistics;
+                    const snippet = video.snippet;
+                    
+                    // 통계 업데이트
+                    document.getElementById('views').textContent = formatNumber(parseInt(statistics.viewCount || 0));
+                    document.getElementById('likes').textContent = formatNumber(parseInt(statistics.likeCount || 0));
+                    document.getElementById('comments').textContent = formatNumber(parseInt(statistics.commentCount || 0));
+                    
+                    // 노래 제목 업데이트
+                    if (snippet.title) {
+                        document.getElementById('song-title').textContent = snippet.title;
                     }
+                    
+                    // 더 좋은 썸네일로 업데이트
+                    if (snippet.thumbnails) {
+                        const thumbnail = snippet.thumbnails.medium || snippet.thumbnails.high || snippet.thumbnails.default;
+                        if (thumbnail && thumbnail.url) {
+                            document.getElementById('thumbnail-img').src = thumbnail.url;
+                        }
+                    }
+                    
+                    console.log('✅ 통계 업데이트 완료 (60초마다)');
                 }
+            } catch (error) {
+                console.error('YouTube API 에러:', error);
             }
-
-            const avgIncrease = daysWithData > 0 ? Math.round(totalIncrease / daysWithData) : 0;
-
-            document.getElementById('firstRecord').textContent = firstRecord;
-            document.getElementById('monthlyIncrease').textContent = totalIncrease.toLocaleString();
-
-            document.getElementById('summary').innerHTML = `
-                <div class="summary-card">
-                    <div class="summary-label">월간 총 증가</div>
-                    <div class="summary-value">${totalIncrease.toLocaleString()}</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-label">일평균 증가</div>
-                    <div class="summary-value">${avgIncrease.toLocaleString()}</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-label">최대 일간 증가</div>
-                    <div class="summary-value">${maxIncrease.toLocaleString()}</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-label">기록된 날짜</div>
-                    <div class="summary-value">${daysWithData}일</div>
-                </div>
-            `;
         }
-
-        function previousMonth() {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-        }
-
-        function nextMonth() {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-        }
-
-        loadData();
-        if (Object.keys(videos).length > 0) {
-            currentVideoId = Object.keys(videos)[0];
-            document.getElementById('videoSelect').value = currentVideoId;
-            changeVideo();
-        }
+        
+        // 페이지 로드시 썸네일 즉시 설정
+        setThumbnail();
     </script>
 </body>
 </html>
+
+
+
+
+
